@@ -1,4 +1,5 @@
 const knex = require("knex")
+const {faker} = require("@faker-js/faker")
 
 module.exports = class ContenedorProductos {
     
@@ -9,8 +10,14 @@ module.exports = class ContenedorProductos {
 
     async mostrarTablas () {
         try {
-            if(this.knex)
+            //validar si productos existe
+            const existe = await this.knex.schema.hasTable('productos')
+            if(existe){
             return await this.knex('productos').select('*');
+            }else{
+                return 0;
+            }
+
         }
         catch (error) {
             console.log(error)
@@ -18,14 +25,19 @@ module.exports = class ContenedorProductos {
     }  
 
     async createTable(){
-        try {            
+        try { 
+            //validar si productos existe
+            const existe = await this.knex.schema.hasTable('productos')
+            if(existe){
+                return await this.knex.schema.dropTable('productos')
+            }else{
             return await this.knex.schema.createTable('productos', table => {
                 table.increments('id').primary();
                 table.string('nombre');
                 table.string('precio');
                 table.string('url')
             })
-
+        }
         }
         catch (error) {
             console.log(error)
@@ -34,7 +46,13 @@ module.exports = class ContenedorProductos {
 
     async getAll () {
         try {
+            //validar si productos existe
+            const existe = await this.knex.schema.hasTable('productos')
+            if(existe){
+                return await this.knex('productos').select('*');
+            }else{
             return await this.knex("productos").select()
+            }
         }
         catch (error) {
             console.log(error)
@@ -48,5 +66,31 @@ module.exports = class ContenedorProductos {
         catch (error) {
             console.log(error)
         }       
-    }     
+    } 
+    
+    // async getRandom () {
+    //     try {
+    //         //validar si productos existe
+    //         // const existe = await this.knex.schema.hasTable('productos')
+    //         // if(existe){
+    //             const productosAleatorios  = []
+    //             for(let i=0; i<5; i++) {
+    //                 const producto = {
+    //                     nombre: faker.commerce.productName(),
+    //                     precio: faker.commerce.price(),
+    //                     foto: faker.image.image()
+    //                 }
+    //                 productosAleatorios.push(producto)
+    //             }
+    //         // }else{
+    //         //     return await this.knex("productos").select()
+    //         // }
+    //         return productosAleatorios
+    //     }
+    //     catch (error) {
+    //         console.log(error)
+    //     }
+    // }
+
+    
 }

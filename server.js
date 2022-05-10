@@ -2,6 +2,8 @@ const express = require('express')
 const ContenedorProductos = require('./src/api/ContenedorProductos')
 //const ContenedorMensajes = require("./src/api/classMensajes")
 
+const { faker }= require("@faker-js/faker")
+
 const {Server:HttpServer} = require('http')
 const {Server:IOServer} = require('socket.io')
 //const moment = require('moment')
@@ -29,22 +31,31 @@ app.use(express.static(__dirname + "/src/public")) //esto es para que el servido
 io.on("connection", async (socket) =>{
     
     console.log("Un nuevo usuario conectado!")
-
     const mostrarTablasProductos = await productosEnDB.mostrarTablas()
-
     if(mostrarTablasProductos === 0){  
     socket.emit("productos", await productosEnDB.createTable())
     }
-    //al conectarse el usuario nuevo, ve lo que ya esta ingresado (si hay)
     socket.emit("productos", await productosEnDB.getAll())    
-
-    //escucho lo que viene x producto ingresado x formulario y lo guardo en mi array.
-    //al mismo tiempo le muestro el array completo a todos los usuarios.
     socket.on("nuevoIngreso", async (data) =>{
         await productosEnDB.save(data)
         io.sockets.emit("productos", await productosEnDB.getAll())  
     }) 
 
+    app.get("/api/productos-test", (req,res) =>{
+        const productosAleatorios = []   
+        
+        for(let i = 0; i<5; i++){
+            const producto = {
+                nombre:faker.commerce.productName(),
+                precio: faker.commerce.price(),
+                foto: faker.image.image()
+            }
+            productosAleatorios.push(producto)
+        }
+
+        res.json(productosAleatorios)  
+    })
+  
     //-------------------------------------------------------------------------------
 
     // const mostrarTablasMensajes = await mensajesEnDB.mostrarTablas()
