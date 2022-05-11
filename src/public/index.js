@@ -23,16 +23,16 @@ socket.on("productos", async (data) =>{
     productosDiv.innerHTML = html
 })
 
-socket.on("productosAleatorios", async (data) =>{
+//como traigo la data de "productosFaker" si no uso el io.sockets.emit...???
+socket.on("productosFaker", async (productosFaker) =>{
     const response = await fetch("views/productosAleatorios.hbs")
     let template = response.text()
     const string = await template
-    const plantilla = Handlebars.compile(string)
-    const html = plantilla({data})
+    const plantilla = Handlebars.compile(string)    
+    const html = plantilla({productosFaker})
     productosAleatoriosDiv.innerHTML = html
 })
 
-//------------------------------------------------------------
 
 // const formularioMensajes = document.getElementById("formularioMensajes")
 // const muestraDeMensajes = document.getElementById("mensajes")

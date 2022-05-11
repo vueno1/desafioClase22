@@ -1,0 +1,19 @@
+
+        try{
+
+            const productosAleatorios = []   
+            
+            for(let i = 0; i<5; i++){
+                const producto = {
+                    nombre:faker.commerce.productName(),
+                    precio: faker.commerce.price(),
+                    foto: faker.image.image()
+                }
+                productosAleatorios.push(producto)
+            }
+    
+            res.render("views", {productosAleatorios})        
+        }
+        catch(error){
+            console.log(error.message)
+        }
