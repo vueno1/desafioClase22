@@ -1,0 +1,14 @@
+[
+  {
+    "autor": {
+      "id": "pepito@gmail.com",
+      "nombre": "pepe",
+      "apellido": "perez",
+      "edad": "30",
+      "alias": "pepito",
+      "avatar": "https://cdn3.iconfinder.com/data/icons/business-avatar-1/512/8_avatar-128.png"
+    },
+    "text": "hola!",
+    "time": "May 13th 2022, 5:07:27 pm"
+  }
+]

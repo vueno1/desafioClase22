@@ -1,9 +1,10 @@
 <div>
     {{#each data}}     
         <div class="mensajesDiv">
-            <p class="email">{{this.mail}} </p>
-            <span class="horario">[{{this.horario}}]</span>
-            <p class="mensaje">:{{this.mensaje}}</p>
+            <p class="email">{{this.autor.id}}</p>
+            <p class="horario"> [{{this.time}}] </p>
+            <p class="mensaje">:{{this.text}}</p>
+            <img src={{this.autor.avatar}} alt="" height="50px">
         </div>
     {{/each}} 
 </div>

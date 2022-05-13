@@ -40,22 +40,51 @@
 
     <div id="productos"></div>
 
-    <div id="productosAleatorios"></div>
+    <div id="divFaker">
+        <button id="btn_faker" class="btn btn-primary">Mostrar Productos Faker</button>
+        <div id="productosAleatorios"></div>
+    </div>
 
     <h3>CANAL DE CHAT</h3>
     <form id="formularioMensajes">
 
         <div class="form-group">
-            <label for="nombre">Mail</label>
+            <label for="nombre">id</label>
             <input type="email" class="form-control" id="mail" name="mail" placeholder="Ingrese su mail" required>
         </div>
 
         <div class="form-group">
+            <label for="nombre">nombre</label>
+            <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Ingrese su nombre" required>
+        </div>
+
+        <div class="form-group">
+            <label for="nombre">apellido</label>
+            <input type="text" class="form-control" id="apellido" name="apellido" placeholder="Ingrese su apellido" required>
+        </div>
+
+        <div class="form-group">
+            <label for="nombre">edad</label>
+            <input type="number" class="form-control" id="edad" name="edad" placeholder="Ingrese su edad" required>
+        </div>
+
+        <div class="form-group">
+            <label for="nombre">alias</label>
+            <input type="text" class="form-control" id="alias" name="alias" placeholder="Ingrese su alias" required>
+        </div>
+
+        <div class="form-group">
+            <label for="nombre">avatar</label>
+            <input type="url" class="form-control" id="avatar" name="avatar" placeholder="Ingrese url de avatar" required>
+        </div>
+
+        <div class="form-group">
             <label for="nombre">Mensaje:</label>
-            <input type="text" class="form-control" id="mensaje" name="mensaje" placeholder="Ingrese su mensaje">
+            <input type="text" class="form-control" id="mensaje" name="mensaje" placeholder="Ingrese mensaje">
         </div>
   
         <button  type="submit" class="btn btn-primary">Enviar</button>
+        
     </form>
 
     <p id="mensajes"></p>
@@ -139,6 +168,10 @@
     .mensaje{
         color: green;
         font-style: italic;
+    }
+
+    #divFaker{
+        text-align: center;
     }
     
 </style>
