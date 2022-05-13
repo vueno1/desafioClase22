@@ -23,15 +23,25 @@ socket.on("productos", async (data) =>{
     productosDiv.innerHTML = html
 })
 
-//como traigo la data de "productosFaker" si no uso el io.sockets.emit...???
-socket.on("productosFaker", async (productosFaker) =>{
-    const response = await fetch("views/productosAleatorios.hbs")
-    let template = response.text()
+//con window.onload me traigo los productos aleatorios 
+//que vienen de la ruta "http://localhost:8080/api/productos-test" 
+//con el fetch y el template imprimo mi info en la pagina.
+window.onload = async () =>{
+
+    //con fetch traigo la data de la api.
+    const response = await fetch ("http://localhost:8080/api/productos-test")
+    const data = await response.json()
+
+    //traer info para enviarlo x sockets
+    const fetchProductosAleatorios = await fetch("views/productosAleatorios.hbs")
+    let template = fetchProductosAleatorios.text()
     const string = await template
-    const plantilla = Handlebars.compile(string)    
-    const html = plantilla({productosFaker})
-    productosAleatoriosDiv.innerHTML = html
-})
+    const plantilla = Handlebars.compile(string)
+    const html2 = plantilla({data})
+    productosAleatoriosDiv.innerHTML = html2
+}
+
+
 
 
 // const formularioMensajes = document.getElementById("formularioMensajes")

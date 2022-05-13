@@ -32,27 +32,9 @@ io.on("connection", async (socket) =>{
     socket.on("nuevoIngreso", async (data) =>{
         await productosEnDB.save(data)
         io.sockets.emit("productos", await productosEnDB.getAll())  
-    }) 
-  
-    app.get("/api/productos-test", (req,res) =>{
-        const productosFaker = [] 
-        for(let i = 0; i<5; i++){
-            const producto = {
-                nombre:faker.commerce.productName(),
-                precio: faker.commerce.price(),
-                foto: faker.image.image()
-            }
-            productosFaker.push(producto)
-        }
-        //seria exponer el json en esa ruta de test, y tener una plantilla que haga el fetch a esa ruta y renderice el array)
-        res.json(productosFaker)
-    })
+    })    
     
-    //nota tutor: 
-    // En la misma ruta de test, hacer un res.render de la plantilla pasandole la data generada
-    // O en esa ruta exponer la data json, como un array. Y hacerle el fetch desde un js vinculado a la plantilla
-
-
+    
     // const mostrarTablasMensajes = await mensajesEnDB.mostrarTablas()
     // if(mostrarTablasMensajes===0){
     // socket.emit("mensajes", await mensajesEnDB.createTable())
@@ -63,7 +45,23 @@ io.on("connection", async (socket) =>{
     //     await mensajesEnDB.save (data)
     //     io.sockets.emit("mensajes", await mensajesEnDB.getAll())
     // }) 
+    
+})
 
+//la ruta queda x fuera del socket. 
+//y creo los productos aleatorios. 
+app.get("/api/productos-test", (req,res) =>{
+    const productosFaker = [] 
+    for(let i = 0; i<5; i++){
+        const producto = {
+            nombre:faker.commerce.productName(),
+            precio: faker.commerce.price(),
+            foto: faker.image.image()
+        }
+        productosFaker.push(producto)
+    }
+    //seria exponer el json en esa ruta de test, y tener una plantilla que haga el fetch a esa ruta y renderice el array)
+    res.json(productosFaker)
 })
 
 httpServer.listen(8080, () => console.log('LISTO!...comencemos..'))
