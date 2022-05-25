@@ -7,60 +7,165 @@ const ContenedorProductos = require('./src/api/ContenedorProductos')
 const ContenedorMensajesNew = require("./src/api/ContenedorMensajesNew")
 const {mariaDB} = require('./src/options/mariaDB');
 const moment = require('moment')
+const cookieParser = require('cookie-parser')
+const session = require('express-session')
+const bodyParser = require('body-parser')
+const path = require('path')
+const exphbs = require('express-handlebars')
+const connectMongo = require('connect-mongo')
+const dotenv = require('dotenv')
+dotenv.config()
+
+const MongoStore = connectMongo.create({
+    mongoUrl: process.env.MONGO_URL
+})
 
 const httpServer = new HttpServer(app)
 const io = new IOServer(httpServer)
 const productosEnDB = new ContenedorProductos(mariaDB);
 const mensajesEnFs = new ContenedorMensajesNew();
 
+app.set('views', path.join(path.dirname(''), './src/views') )
+app.engine('.hbs', exphbs.engine({
+    defaultLayout: 'main',
+    layoutsDir: path.join(app.get('views'), 'layouts'),
+    partialsDir: path.join(app.get('views'), 'partials'),
+    extname: '.hbs'
+}));
+app.set('view engine', '.hbs');
+
 app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
+app.use(bodyParser.urlencoded({ extended: true }))
 
-app.set('view engine', 'hbs'); //le decimos a express el motor es hbs
-app.set('views', __dirname + "/public/views"); //le decimos a express donde estan los archivos de vistas
-app.use(express.static(__dirname + "/src/public")) //esto es para que el servidor pueda acceder a los archivos estaticos
+/*==========SESSION==========*/
+app.use(cookieParser())
+app.use(session({
+    store: MongoStore,
+    secret: 'keyboard cat',
+    resave: false,
+    saveUninitialized: true
+}))
 
-io.on("connection", async (socket) =>{   
-
-    console.log(`🙂 Un nuevo usuario conectado!`)
-
-    const mostrarTablasProductos = await productosEnDB.mostrarTablas()
-
-    if(mostrarTablasProductos === 0){  
-    socket.emit("productos", await productosEnDB.createTable())
+/*============RUTAS===============*/
+app.get("/", (req, res) => {
+    try{
+        res.render("login")
     }
-    socket.emit("productos", await productosEnDB.getAll())    
-
-    socket.on("nuevoIngreso", async (data) =>{
-        await productosEnDB.save(data)
-        io.sockets.emit("productos", await productosEnDB.getAll())  
-    })    
-    
-    socket.emit("mensajes", await mensajesEnFs.mostrarMensajes())
-    
-    socket.on("mensajeIngreso", async(data) =>{
-        data.time = moment().format('MMMM Do YYYY, h:mm:ss a')
-        await mensajesEnFs.guardarMensajes(data)   
-        io.sockets.emit("mensajes", await mensajesEnFs.mostrarMensajes())
-        
-    })
-    
+    catch(error){
+        console.log(error.message)
+    }
 })
 
-//la ruta queda x fuera del socket. 
-//y creo los productos aleatorios. 
-app.get("/api/productos-test", (req,res) =>{
-    const productosFaker = [] 
-    for(let i = 0; i<5; i++){
-        const producto = {
-            nombre:faker.commerce.productName(),
-            precio: faker.commerce.price(),
-            foto: faker.image.image()
+app.post("/login", (req, res) => {
+    try{
+        const {nombre, password} = req.body    
+        if(req.session.nombre !== nombre && req.session.password !== password){
+            res.redirect("/register")
+        } else {
+            res.redirect("/index")
         }
-        productosFaker.push(producto)
-    }
-    //seria exponer el json en esa ruta de test, y tener una plantilla que haga el fetch a esa ruta y renderice el array)
-    res.json(productosFaker)
+    } 
+    catch(error){
+        console.log(error.message)
+    }    
 })
 
+app.get("/register", (req, res) => {
+    try{
+        res.render("register")
+    }
+    catch(error){
+        console.log(error.message)
+    }
+})
+
+app.post("/register", async (req,res) =>{
+    try{
+        const {nombre, password} = await req.body
+        req.session.nombre = nombre,
+        req.session.password = password
+        res.redirect("/")
+    }
+    catch(error){
+        console.log(error.message)
+    }
+})
+
+app.get("/index", async (req, res) => {
+    try{
+        const productos = await productosEnDB.mostrarTodo()
+        const mensajes = await mensajesEnFs.mostrarMensajes()
+        res.render("index", {
+            nombre: req.session.nombre,
+            productos: productos,
+            mensajes: mensajes
+        })
+    }
+    catch(error){
+        console.log(error.message)
+    }
+})
+
+app.get("/logout", (req, res) => {
+    try {
+        req.session.destroy()
+        res.render("adios")
+    }
+    catch(error){
+        console.log(error.message)
+    }
+}) 
+
+setTimeout(() => {
+    app.get("/logout", (req, res) => {
+        res.redirect("/")
+    })
+}, 2000) 
+
+app.post("/productos", async (req,res) =>{
+    try{
+        const {nombre, precio, url} = await req.body
+        const producto = {
+            nombre,
+            precio,
+            url
+        }
+        await productosEnDB.guardar(producto)
+        res.redirect("/index")
+    }
+    catch(error){
+        console.log(error.message)
+    }
+})
+
+app.post("/mensajes", async (req, res) => {
+    try{
+        const {mail, nombre, apellido, edad, alias, avatar, mensaje} = await req.body
+        const nuevoMensaje = {
+            autor: {
+                id: mail,
+                nombre: nombre,
+                apellido: apellido,
+                edad: edad,
+                alias: alias,
+                avatar: avatar    
+            },
+            text: mensaje,
+            time: moment().format('DD/MM/YYYY HH:mm:ss')
+        }
+        mensajesEnFs.guardarMensajes(nuevoMensaje)
+        res.redirect("/index")
+    }
+    catch(error){
+        console.log(error.message)
+    }
+})
+
+/*=========SOCKET==========*/
+io.on("connection",  (socket) =>{
+    console.log(`🙂 Un nuevo usuario conectado!`)
+    
+})
+
+/*==========PUERTO==========*/
 httpServer.listen(8080, () => console.log(`💻 Servidor corriendo en el puerto 8080`))

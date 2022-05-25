@@ -1,5 +1,4 @@
 const knex = require("knex")
-const {faker} = require("@faker-js/faker")
 
 module.exports = class ContenedorProductos {
     
@@ -24,7 +23,7 @@ module.exports = class ContenedorProductos {
         }
     }  
 
-    async createTable(){
+    async crearTabla(){
         try { 
             //validar si productos existe
             const existe = await this.knex.schema.hasTable('productos')
@@ -44,7 +43,7 @@ module.exports = class ContenedorProductos {
         }         
     }    
 
-    async getAll () {
+    async mostrarTodo () {
         try {
             //validar si productos existe
             const existe = await this.knex.schema.hasTable('productos')
@@ -59,7 +58,7 @@ module.exports = class ContenedorProductos {
         }
     }
 
-    async save (nuevoObjeto) {
+    async guardar (nuevoObjeto) {
         try{
             return await this.knex("productos").insert(nuevoObjeto)
         }

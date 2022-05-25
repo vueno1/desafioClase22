@@ -1,0 +1,151 @@
+{{>bienvenido}}
+
+<h1>Ingrese Productos:</h1>
+    
+<form id="miFormulario" action="/productos" method="post" autocomplete="off">
+    
+    <div class="form-group">
+        <label for="nombre">Nombre</label>
+        <input type="text" class="form-control" id="nombre" name="nombre" placeholder="nombre">
+    </div>
+    
+    <div class="form-group">
+        <label for="apellido">Precio</label>
+        <input type="number" class="form-control" id="precio" name="precio" placeholder="precio">
+    </div>
+    
+    <div class="form-group">
+        <label for="edad">Foto URL</label>
+        <input type="url" class="form-control" id="url" name="url" placeholder="url">
+    </div>
+
+    <button type="submit" class="btn btn-primary">Enviar</button>
+    
+</form>
+
+{{>tabla}}
+
+<h3>CANAL DE CHAT</h3>
+<form id="formularioMensajes" action="/mensajes" method="post" autocomplete="off">
+
+    <div class="form-group">
+        <label for="nombre">id</label>
+        <input type="email" class="form-control" id="mail" name="mail" placeholder="Ingrese su mail" required>
+    </div>
+
+    <div class="form-group">
+        <label for="nombre">nombre</label>
+        <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Ingrese su nombre" required>
+    </div>
+
+    <div class="form-group">
+        <label for="nombre">apellido</label>
+        <input type="text" class="form-control" id="apellido" name="apellido" placeholder="Ingrese su apellido" required>
+    </div>
+
+    <div class="form-group">
+        <label for="nombre">edad</label>
+        <input type="number" class="form-control" id="edad" name="edad" placeholder="Ingrese su edad" required>
+    </div>
+
+    <div class="form-group">
+        <label for="nombre">alias</label>
+        <input type="text" class="form-control" id="alias" name="alias" placeholder="Ingrese su alias" required>
+    </div>
+
+    <div class="form-group">
+        <label for="nombre">avatar</label>
+        <input type="url" class="form-control" id="avatar" name="avatar" placeholder="Ingrese url de avatar" required>
+    </div>
+
+    <div class="form-group">
+        <label for="nombre">Mensaje:</label>
+        <input type="text" class="form-control" id="mensaje" name="mensaje" placeholder="Ingrese mensaje">
+    </div>
+
+    <button  type="submit" class="btn btn-primary">Enviar</button>
+    
+</form>
+
+{{>mensajes}}
+
+<style>
+
+form {
+    margin: 0 auto;
+    width: 50%;
+}
+
+body {
+    padding: 20px;
+    background-color: #c9c9c9;
+}
+
+h1 {
+    text-align: center;
+    font-weight: bold;
+    font-style: italic;
+    color: blue;
+}
+
+h3 {
+    text-align: center;
+    font-weight: bold;
+    font-style: italic;
+    color: blue;
+    padding-top: 50px;
+    border-top: black solid thin;
+}
+
+label {
+    font-style: italic;
+    font-weight: bold;
+}
+
+button{
+    margin-top: 20px;
+}
+
+#productos {
+    padding-top: 30px;
+    margin: 0 auto;
+    width: 50%;
+    padding-bottom: 30px;
+}
+
+#productosAleatorios {
+    padding-top: 30px;
+    margin: 0 auto;
+    width: 50%;
+    padding-bottom: 30px;
+
+}
+
+#mensajes {
+    padding-top: 30px;
+    margin: 0 auto;
+    width: 50%;
+    padding-bottom: 30px;
+}   
+
+.email{
+    font-weight: bold;
+    color: blue;
+}
+.mensajesDiv{
+    display: flex;
+    flex-direction: row;
+}
+.horario{
+    color: brown;
+}
+.mensaje{
+    color: green;
+    font-style: italic;
+}
+
+#divFaker{
+    text-align: center;
+}
+
+</style>

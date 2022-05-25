@@ -23,13 +23,24 @@ module.exports = class ContenedorMensajesNew {
 
     async guardarMensajes (mensaje) {
         try{
-            this.mensajes.push(mensaje) 
-
-            fs.writeFileSync(
+            const mensajesEnFile = fs.readFileSync(ruta, "utf8")
+            if(mensajesEnFile.length === 0) {
+                this.mensajes.push(mensaje) 
+                fs.writeFileSync(
                 ruta,
                 JSON.stringify(this.mensajes, null, 2),
-            )
-            return this.mensajes
+                )
+                return this.mensajes
+                }
+            else {
+                const parseoMensajes = JSON.parse(mensajesEnFile)
+                parseoMensajes.push(mensaje)
+                fs.writeFileSync(
+                ruta,
+                JSON.stringify(parseoMensajes, null, 2),
+                )
+                return parseoMensajes
+            }    
         }
         catch (error) {
             console.log(error)
