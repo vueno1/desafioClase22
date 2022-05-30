@@ -1,8 +1,8 @@
 const express = require('express')
 const app = express()
-const { faker }= require("@faker-js/faker")
+//const { faker }= require("@faker-js/faker")
 const {Server:HttpServer} = require('http')
-const {Server:IOServer} = require('socket.io')
+//const {Server:IOServer} = require('socket.io')
 const ContenedorProductos = require('./src/api/ContenedorProductos')
 const ContenedorMensajesNew = require("./src/api/ContenedorMensajesNew")
 const {mariaDB} = require('./src/options/mariaDB');
@@ -15,13 +15,18 @@ const exphbs = require('express-handlebars')
 const connectMongo = require('connect-mongo')
 const dotenv = require('dotenv')
 dotenv.config()
+const bcrypt = require('bcrypt')
+const passport = require('passport')
+const { Strategy: LocalStrategy } = require('passport-local')
 
 const MongoStore = connectMongo.create({
     mongoUrl: process.env.MONGO_URL
 })
 
+//si pongo ttl no me guarda encriptado el password en mongodb.
+
 const httpServer = new HttpServer(app)
-const io = new IOServer(httpServer)
+//const io = new IOServer(httpServer)
 const productosEnDB = new ContenedorProductos(mariaDB);
 const mensajesEnFs = new ContenedorMensajesNew();
 
@@ -34,8 +39,10 @@ app.engine('.hbs', exphbs.engine({
 }));
 app.set('view engine', '.hbs');
 
+//middlewares para la info que viene x cliente.
 app.use(express.json())
-app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.urlencoded({ extended: true })) //recibe los datos desde el cliente. 
+//solo va a recibir datos desde un formulario. 
 
 /*==========SESSION==========*/
 app.use(cookieParser())
@@ -45,6 +52,70 @@ app.use(session({
     resave: false,
     saveUninitialized: true
 }))
+
+passport.use("local-signup", new LocalStrategy(
+    //estrategia manda como argumento el mail + password
+    //y hace la consulta, si existe o no.  
+    {
+        usernameField: 'email',
+        passwordField: 'password',
+        passReqToCallback: true
+    },
+
+    async (req, email, password, done) => {
+        const mongoEmail = await req.session.email 
+        const mongoPassword = await req.session.password
+
+        const mongoUsuario = {
+            email: mongoEmail,
+            password: mongoPassword
+        }
+
+        if(mongoEmail !== email) {
+            console.log("no coincide email")
+            return done(null, false, {message: "El usuario no existe"})
+        }
+        else {
+            console.log(password)
+            //desencriptar con bycrpt
+            const desencriptado = await bcrypt.compare(password, mongoPassword)
+            //const compararContraseña = bcrypt.compareSync(password, mongoPassport)
+            if(!desencriptado) {
+                console.log("no coincide password")
+                return done(null, false, {message: "Contraseña incorrecta"})
+            }
+            else {
+                console.log("usuario logueado")
+                return done(null, mongoUsuario)
+            }
+        }
+     
+    }
+))
+
+//una vez hemos registrado, vamos a guardarlo internamento en el navegador.
+//no vamos a tener que autenticar cada vez q visita la pagina.
+//eso lo hace passport con estos dos metodos:
+
+//recibe un usuario y un callback (done)
+passport.serializeUser((mongoUsuario, done) => {
+    //vamos a guardarlo para que no se pierda.
+    done(null, mongoUsuario.email);
+    //desde el usuario, vamos a guardar el email.
+})
+
+//proceso inverso, en vez del usuario, recibe el email.
+passport.deserializeUser(async (email, done) => {
+    //console.log("deserializeUser")
+    const mongoUsuario = (await MongoStore.collectionP).find()
+    //console.log(mongoUsuario)
+    done(null, mongoUsuario)
+    
+})
+
+//middleware para passport//
+app.use(passport.initialize()) //inicializa passport
+app.use(passport.session()) 
 
 /*============RUTAS===============*/
 app.get("/", (req, res) => {
@@ -56,19 +127,12 @@ app.get("/", (req, res) => {
     }
 })
 
-app.post("/login", (req, res) => {
-    try{
-        const {nombre, password} = req.body    
-        if(req.session.nombre !== nombre && req.session.password !== password){
-            res.redirect("/register")
-        } else {
-            res.redirect("/index")
-        }
-    } 
-    catch(error){
-        console.log(error.message)
-    }    
-})
+app.post('/login', 
+    passport.authenticate("local-signup", {
+        successRedirect: "/index",
+        failureRedirect: "/register"
+    })
+);
 
 app.get("/register", (req, res) => {
     try{
@@ -81,9 +145,15 @@ app.get("/register", (req, res) => {
 
 app.post("/register", async (req,res) =>{
     try{
-        const {nombre, password} = await req.body
-        req.session.nombre = nombre,
-        req.session.password = password
+        const {email, password} = await req.body
+        console.log(email)
+        console.log(password)
+
+        const salt = await bcrypt.genSalt(10) //ejecuta el algoritmo 10 veces.
+        const hash = await bcrypt.hash(password, salt)
+
+        req.session.email = email,
+        req.session.password = hash
         res.redirect("/")
     }
     catch(error){
@@ -96,7 +166,7 @@ app.get("/index", async (req, res) => {
         const productos = await productosEnDB.mostrarTodo()
         const mensajes = await mensajesEnFs.mostrarMensajes()
         res.render("index", {
-            nombre: req.session.nombre,
+            nombre: req.session.email,
             productos: productos,
             mensajes: mensajes
         })
@@ -115,12 +185,6 @@ app.get("/logout", (req, res) => {
         console.log(error.message)
     }
 }) 
-
-setTimeout(() => {
-    app.get("/logout", (req, res) => {
-        res.redirect("/")
-    })
-}, 2000) 
 
 app.post("/productos", async (req,res) =>{
     try{
@@ -161,11 +225,9 @@ app.post("/mensajes", async (req, res) => {
     }
 })
 
-/*=========SOCKET==========*/
-io.on("connection",  (socket) =>{
-    console.log(`🙂 Un nuevo usuario conectado!`)
-    
-})
-
 /*==========PUERTO==========*/
-httpServer.listen(8080, () => console.log(`💻 Servidor corriendo en el puerto 8080`))
+const PORT = process.env.PORT
+httpServer.listen(PORT, () => console.log(`💻 Servidor corriendo en el puerto 8080`))
+httpServer.on('error', (error) => {
+    console.log(error.message)
+})
