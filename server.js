@@ -20,7 +20,8 @@ const passport = require('passport')
 const { Strategy: LocalStrategy } = require('passport-local')
 
 const MongoStore = connectMongo.create({
-    mongoUrl: process.env.MONGO_URL
+    mongoUrl: process.env.MONGO_URL,
+    ttl: 24 * 60 * 60 // 1 day
 })
 
 //si pongo ttl no me guarda encriptado el password en mongodb.
@@ -76,7 +77,7 @@ passport.use("local-signup", new LocalStrategy(
             return done(null, false, {message: "El usuario no existe"})
         }
         else {
-            console.log(password)
+            //console.log(password)
             //desencriptar con bycrpt
             const desencriptado = await bcrypt.compare(password, mongoPassword)
             //const compararContraseña = bcrypt.compareSync(password, mongoPassport)
@@ -93,7 +94,7 @@ passport.use("local-signup", new LocalStrategy(
     }
 ))
 
-//una vez hemos registrado, vamos a guardarlo internamento en el navegador.
+//una vez hemos registrado, vamos a guardarlo internamente en el navegador.
 //no vamos a tener que autenticar cada vez q visita la pagina.
 //eso lo hace passport con estos dos metodos:
 
@@ -107,7 +108,7 @@ passport.serializeUser((mongoUsuario, done) => {
 //proceso inverso, en vez del usuario, recibe el email.
 passport.deserializeUser(async (email, done) => {
     //console.log("deserializeUser")
-    const mongoUsuario = (await MongoStore.collectionP).find()
+    const mongoUsuario = (await MongoStore.collectionP).findOne({email})
     //console.log(mongoUsuario)
     done(null, mongoUsuario)
     
@@ -130,9 +131,20 @@ app.get("/", (req, res) => {
 app.post('/login', 
     passport.authenticate("local-signup", {
         successRedirect: "/index",
-        failureRedirect: "/register"
+        failureRedirect: "/login-error"
     })
 );
+
+app.get("/login-error", (req, res) => {
+    try{
+        res.render("login-error")
+    }
+    catch(error){
+        console.log(error.message)
+    }
+})
+
+
 
 app.get("/register", (req, res) => {
     try{
@@ -148,7 +160,10 @@ app.post("/register", async (req,res) =>{
         const {email, password} = await req.body
         console.log(email)
         console.log(password)
-
+        
+        // if(req.session.email === email && req.session.password === password){
+        //     res.render("/register-duplicado")
+        // }
         const salt = await bcrypt.genSalt(10) //ejecuta el algoritmo 10 veces.
         const hash = await bcrypt.hash(password, salt)
 
@@ -163,10 +178,11 @@ app.post("/register", async (req,res) =>{
 
 app.get("/index", async (req, res) => {
     try{
+        //console.log(await req.session.email)
         const productos = await productosEnDB.mostrarTodo()
         const mensajes = await mensajesEnFs.mostrarMensajes()
         res.render("index", {
-            nombre: req.session.email,
+            email: await req.session.email,
             productos: productos,
             mensajes: mensajes
         })
