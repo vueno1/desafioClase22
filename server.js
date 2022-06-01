@@ -1,8 +1,6 @@
 const express = require('express')
 const app = express()
-//const { faker }= require("@faker-js/faker")
 const {Server:HttpServer} = require('http')
-//const {Server:IOServer} = require('socket.io')
 const ContenedorProductos = require('./src/api/ContenedorProductos')
 const ContenedorMensajesNew = require("./src/api/ContenedorMensajesNew")
 const {mariaDB} = require('./src/options/mariaDB');
@@ -21,6 +19,10 @@ const { Strategy: LocalStrategy } = require('passport-local')
 const mongoose = require('mongoose')
 const Usuario = require('./src/model/user')
 
+const httpServer = new HttpServer(app)
+const productosEnDB = new ContenedorProductos(mariaDB);
+const mensajesEnFs = new ContenedorMensajesNew();
+
 const MongoStore = connectMongo.create({
     mongoUrl: process.env.MONGO_URL
 })
@@ -38,10 +40,6 @@ try {
     console.log(error.message)
 }
 
-const httpServer = new HttpServer(app)
-//const io = new IOServer(httpServer)
-const productosEnDB = new ContenedorProductos(mariaDB);
-const mensajesEnFs = new ContenedorMensajesNew();
 
 app.set('views', path.join(path.dirname(''), './src/views') )
 app.engine('.hbs', exphbs.engine({
@@ -62,27 +60,6 @@ app.use(session({
     resave: false,
     saveUninitialized: true
 }))
-
-// passport.use("local",
-//     new LocalStrategy(
-//     {
-//         usernameField: 'email',
-//         passwordField: 'password',
-//         passReqToCallback: true
-//     },
-//     async (req, email, password,done) =>{
-//         try{
-//             const user = await Usuario.findOne({email: email});
-//             if(!user) done(null, false)
-//             const passwordCorrect = await bcrypt.compare(password, user.password);
-//             if(!passwordCorrect) done(null, false);
-//             done(null, user);
-//         } catch(err){
-//             done(err, false);
-//         }
-//     }
-// )
-// )
 
 passport.use("local", new LocalStrategy(  
     {
@@ -108,6 +85,7 @@ passport.use("local", new LocalStrategy(
 //una vez hemos registrado, vamos a guardarlo internamente en el navegador.
 //no vamos a tener que autenticar cada vez q visita la pagina.
 //eso lo hace passport con estos dos metodos:
+//en la sesion se guarda como "user": "todo el id...."
 passport.serializeUser((user, done) => {
     done(null, user._id)
 })
@@ -117,10 +95,10 @@ passport.deserializeUser(async (_id, done) => {
     done(null, usuario)
 })
 
-//middleware para passport//
 app.use(passport.initialize()) //inicializa passport
 app.use(passport.session()) 
 
+//=================================//
 /*============RUTAS===============*/
 app.get("/login", async (req, res) => {
     try{
@@ -215,6 +193,7 @@ app.get("/logout", (req, res) => {
     }
 }) 
 
+//=================================//
 //=====rutas productos y mensajes=====//
 app.post("/productos", async (req,res) =>{
     try{
