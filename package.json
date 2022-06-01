@@ -21,6 +21,7 @@
     "express-session": "^1.17.3",
     "knex": "^2.0.0",
     "moment": "^2.29.3",
+    "mongoose": "^6.3.5",
     "mysql": "^2.18.1",
     "passport": "^0.6.0",
     "passport-local": "^1.0.0",

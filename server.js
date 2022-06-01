@@ -18,13 +18,25 @@ dotenv.config()
 const bcrypt = require('bcrypt')
 const passport = require('passport')
 const { Strategy: LocalStrategy } = require('passport-local')
+const mongoose = require('mongoose')
+const Usuario = require('./src/model/user')
 
 const MongoStore = connectMongo.create({
-    mongoUrl: process.env.MONGO_URL,
-    ttl: 24 * 60 * 60 // 1 day
+    mongoUrl: process.env.MONGO_URL
 })
-
 //si pongo ttl no me guarda encriptado el password en mongodb.
+
+try {
+    mongoose.connect(
+        process.env.MONGO_URL, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true            
+        })
+        console.log("conectado a mongo")
+
+} catch (error) {
+    console.log(error.message)
+}
 
 const httpServer = new HttpServer(app)
 //const io = new IOServer(httpServer)
@@ -39,11 +51,8 @@ app.engine('.hbs', exphbs.engine({
     extname: '.hbs'
 }));
 app.set('view engine', '.hbs');
-
-//middlewares para la info que viene x cliente.
 app.use(express.json())
 app.use(bodyParser.urlencoded({ extended: true })) //recibe los datos desde el cliente. 
-//solo va a recibir datos desde un formulario. 
 
 /*==========SESSION==========*/
 app.use(cookieParser())
@@ -54,64 +63,58 @@ app.use(session({
     saveUninitialized: true
 }))
 
-passport.use("local-signup", new LocalStrategy(
-    //estrategia manda como argumento el mail + password
-    //y hace la consulta, si existe o no.  
+// passport.use("local",
+//     new LocalStrategy(
+//     {
+//         usernameField: 'email',
+//         passwordField: 'password',
+//         passReqToCallback: true
+//     },
+//     async (req, email, password,done) =>{
+//         try{
+//             const user = await Usuario.findOne({email: email});
+//             if(!user) done(null, false)
+//             const passwordCorrect = await bcrypt.compare(password, user.password);
+//             if(!passwordCorrect) done(null, false);
+//             done(null, user);
+//         } catch(err){
+//             done(err, false);
+//         }
+//     }
+// )
+// )
+
+passport.use("local", new LocalStrategy(  
     {
         usernameField: 'email',
         passwordField: 'password',
         passReqToCallback: true
     },
-
     async (req, email, password, done) => {
-        const mongoEmail = await req.session.email 
-        const mongoPassword = await req.session.password
-
-        const mongoUsuario = {
-            email: mongoEmail,
-            password: mongoPassword
+        try {
+            const user = await Usuario.findOne({ email: email });
+            if(!user) return done(null, false,  {message: "Usuario no encontrado"})
+            const desencriptado = await bcrypt.compare(password, user.password)
+            if(!desencriptado) return done(null, false, {message: "El password no coincide"})
+            return done(null, user)
         }
 
-        if(mongoEmail !== email) {
-            console.log("no coincide email")
-            return done(null, false, {message: "El usuario no existe"})
-        }
-        else {
-            //console.log(password)
-            //desencriptar con bycrpt
-            const desencriptado = await bcrypt.compare(password, mongoPassword)
-            //const compararContraseña = bcrypt.compareSync(password, mongoPassport)
-            if(!desencriptado) {
-                console.log("no coincide password")
-                return done(null, false, {message: "Contraseña incorrecta"})
-            }
-            else {
-                console.log("usuario logueado")
-                return done(null, mongoUsuario)
-            }
-        }
-     
+     catch (error) {
+        console.log(error.message)
     }
+}
 ))
 
 //una vez hemos registrado, vamos a guardarlo internamente en el navegador.
 //no vamos a tener que autenticar cada vez q visita la pagina.
 //eso lo hace passport con estos dos metodos:
-
-//recibe un usuario y un callback (done)
-passport.serializeUser((mongoUsuario, done) => {
-    //vamos a guardarlo para que no se pierda.
-    done(null, mongoUsuario.email);
-    //desde el usuario, vamos a guardar el email.
+passport.serializeUser((user, done) => {
+    done(null, user._id)
 })
 
-//proceso inverso, en vez del usuario, recibe el email.
-passport.deserializeUser(async (email, done) => {
-    //console.log("deserializeUser")
-    const mongoUsuario = (await MongoStore.collectionP).findOne({email})
-    //console.log(mongoUsuario)
-    done(null, mongoUsuario)
-    
+passport.deserializeUser(async (_id, done) => {
+    const usuario = await Usuario.findById(_id)
+    done(null, usuario)
 })
 
 //middleware para passport//
@@ -119,7 +122,7 @@ app.use(passport.initialize()) //inicializa passport
 app.use(passport.session()) 
 
 /*============RUTAS===============*/
-app.get("/", (req, res) => {
+app.get("/login", async (req, res) => {
     try{
         res.render("login")
     }
@@ -129,7 +132,7 @@ app.get("/", (req, res) => {
 })
 
 app.post('/login', 
-    passport.authenticate("local-signup", {
+    passport.authenticate("local", {
         successRedirect: "/index",
         failureRedirect: "/login-error"
     })
@@ -144,9 +147,7 @@ app.get("/login-error", (req, res) => {
     }
 })
 
-
-
-app.get("/register", (req, res) => {
+app.get("/register",  (req, res) => {
     try{
         res.render("register")
     }
@@ -157,19 +158,31 @@ app.get("/register", (req, res) => {
 
 app.post("/register", async (req,res) =>{
     try{
-        const {email, password} = await req.body
+        const usuariosRegistrados = await Usuario.find()
+        const { email, password } = await req.body
         console.log(email)
         console.log(password)
-        
-        // if(req.session.email === email && req.session.password === password){
-        //     res.render("/register-duplicado")
-        // }
+
+        if(usuariosRegistrados.find(usuario => usuario.email === email)){
+            console.log("el usuario ya esta registrado")
+            res.render("register-duplicado")
+        }        
         const salt = await bcrypt.genSalt(10) //ejecuta el algoritmo 10 veces.
         const hash = await bcrypt.hash(password, salt)
+        console.log(`password hasheado = ${hash}`)
 
-        req.session.email = email,
-        req.session.password = hash
-        res.redirect("/")
+        const user = new Usuario({
+            email: email, 
+            password: hash
+        })
+        await user.save()
+        console.log("se guardo en mongoDB como users")
+
+        req.session.email = user.email
+        req.session.password = user.password
+        console.log("se guardo en session")
+
+        res.redirect("/login")
     }
     catch(error){
         console.log(error.message)
@@ -178,11 +191,11 @@ app.post("/register", async (req,res) =>{
 
 app.get("/index", async (req, res) => {
     try{
-        //console.log(await req.session.email)
+        const user = await Usuario.findById({_id: req.user._id})
         const productos = await productosEnDB.mostrarTodo()
         const mensajes = await mensajesEnFs.mostrarMensajes()
         res.render("index", {
-            email: await req.session.email,
+            email: user.email,
             productos: productos,
             mensajes: mensajes
         })
@@ -202,6 +215,7 @@ app.get("/logout", (req, res) => {
     }
 }) 
 
+//=====rutas productos y mensajes=====//
 app.post("/productos", async (req,res) =>{
     try{
         const {nombre, precio, url} = await req.body
@@ -243,7 +257,7 @@ app.post("/mensajes", async (req, res) => {
 
 /*==========PUERTO==========*/
 const PORT = process.env.PORT
-httpServer.listen(PORT, () => console.log(`💻 Servidor corriendo en el puerto 8080`))
+httpServer.listen(PORT, () => console.log(`💻 Servidor corriendo en el puerto ${PORT}`))
 httpServer.on('error', (error) => {
     console.log(error.message)
 })
