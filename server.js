@@ -6,16 +6,16 @@ const session = require('express-session')
 const bodyParser = require('body-parser')
 const path = require('path')
 const exphbs = require('express-handlebars')
-const dotenv = require('dotenv')
-dotenv.config()
-
 const httpServer = new HttpServer(app)
 const MongoStore = require("./src/options/mongo_connect")
 require("./src/options/mongoDB")
 const passport = require('./src/passport/passport')
 const usuarioRoutes = require('./src/routes/usuarios')
-app.use(usuarioRoutes)
+const productosRoutes = require('./src/routes/productos')
+const mensajesRoutes = require("./src/routes/mensajes")
+const config = require("./src/config")
 
+//==========views==========//
 app.set('views', path.join(path.dirname(''), './src/views') )
 app.engine('.hbs', exphbs.engine({
     defaultLayout: 'main',
@@ -24,6 +24,8 @@ app.engine('.hbs', exphbs.engine({
     extname: '.hbs'
 }));
 app.set('view engine', '.hbs');
+
+//========ingreso cliente=========//
 app.use(express.json())
 app.use(bodyParser.urlencoded({ extended: true })) //recibe los datos desde el cliente. 
 
@@ -36,13 +38,17 @@ app.use(session({
     saveUninitialized: true
 }))
 
-
+//========passport========//
 app.use(passport.initialize()) //inicializa passport
 app.use(passport.session()) 
 
+//=======routes========//
+//app.use rutas de usuarios
+app.use("/", usuarioRoutes, productosRoutes, mensajesRoutes)
+
 /*==========PUERTO==========*/
-const PORT = process.env.PORT
-httpServer.listen(PORT, () => console.log(`💻 Servidor corriendo en el puerto ${PORT}`))
+// const PORT = process.env.PORT
+httpServer.listen(config.PORT, () => console.log(`💻 Servidor corriendo en el puerto ${config.PORT}`))
 httpServer.on('error', (error) => {
     console.log(error.message)
 })
