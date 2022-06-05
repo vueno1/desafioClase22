@@ -13,6 +13,7 @@ const passport = require('./src/passport/passport')
 const usuarioRoutes = require('./src/routes/usuarios')
 const productosRoutes = require('./src/routes/productos')
 const mensajesRoutes = require("./src/routes/mensajes")
+const infoRoutes = require("./src/routes/info")
 const config = require("./src/config")
 
 //==========views==========//
@@ -44,7 +45,7 @@ app.use(passport.session())
 
 //=======routes========//
 //app.use rutas de usuarios
-app.use("/", usuarioRoutes, productosRoutes, mensajesRoutes)
+app.use("/", usuarioRoutes, productosRoutes, mensajesRoutes, infoRoutes)
 
 /*==========PUERTO==========*/
 // const PORT = process.env.PORT
