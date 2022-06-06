@@ -49,7 +49,7 @@ app.use("/", usuarioRoutes, productosRoutes, mensajesRoutes, infoRoutes)
 
 /*==========PUERTO==========*/
 // const PORT = process.env.PORT
-httpServer.listen(config.PORT, () => console.log(`💻 Servidor corriendo en el puerto ${config.PORT}`))
+httpServer.listen(config.PORT, () => console.log(`💻 Servidor corriendo en el puerto ${config.PORT} 💡💡💡!!!`))
 httpServer.on('error', (error) => {
     console.log(error.message)
 })

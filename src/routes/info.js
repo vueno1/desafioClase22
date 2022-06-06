@@ -1,9 +1,10 @@
 const express = require('express')
 const router = express.Router()
 
+
 router.get("/info", async (req, res )=>{
     try{
-        const argumentosDeEntrada = process.argv
+        const argumentosDeEntrada = process.argv.slice(3)
         const pathDeEjecucion = process.cwd()
         const nombreDePlataforma = process.platform
         const versionDeNode = process.version

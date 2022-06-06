@@ -9,7 +9,7 @@ try {
             useNewUrlParser: true,
             useUnifiedTopology: true            
         })
-        console.log("conectado a mongo")
+        console.log(`conectado a MONGODB`)
 
 } catch (error) {
     console.log(error.message)
