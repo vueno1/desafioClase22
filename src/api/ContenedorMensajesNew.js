@@ -8,11 +8,9 @@ module.exports = class ContenedorMensajesNew {
     }    
 
     async mostrarMensajes () {
-
         try{
             const mensajesEnFile = fs.readFileSync(ruta, "utf8")
             if(mensajesEnFile.length === 0) return "no hay mensajes"
-
             const parseoMensajes = JSON.parse(mensajesEnFile)
             return parseoMensajes         
         }

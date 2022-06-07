@@ -22,5 +22,17 @@
     },
     "text": "como esta?",
     "time": "24/05/2022 16:21:15"
+  },
+  {
+    "autor": {
+      "id": "maria@gmail.com",
+      "nombre": "maria",
+      "apellido": "sanchez",
+      "edad": "40",
+      "alias": "marucha",
+      "avatar": "https://cdn3.iconfinder.com/data/icons/business-avatar-1/512/4_avatar-128.png"
+    },
+    "text": "hola chicos!",
+    "time": "06/06/2022 08:36:48"
   }
 ]

@@ -1,6 +1,7 @@
 {{>bienvenido}}
-
+ 
 <button class="btn btn-outline-primary" onclick="location.href='/info'"> 💻 info</button>
+<button  class="btn btn-outline-info"onclick="location.href='/api/randoms'"> 🎲 Numeros Random</button>
 
 <h1>Ingrese Productos:</h1>
     
@@ -25,7 +26,7 @@
     
 </form>
 
-{{>tabla}}
+{{!-- {{>tabla}} --}}
 
 <h3>CANAL DE CHAT</h3>
 <form id="formularioMensajes" action="/mensajes" method="post" autocomplete="off">
@@ -69,7 +70,7 @@
     
 </form>
 
-{{>mensajes}}
+{{> mensajes }}
 
 <style>
 

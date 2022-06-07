@@ -24,7 +24,8 @@ router.post("/productos", async (req,res) =>{
 router.get("/index", async (req, res) => {
     try {
         const productos = await productosEnDB.mostrarTodo()
-        res.render("index", {
+        console.log(productos)
+        res.render("tabla", {
             productos:productos 
         })
     }

@@ -2,14 +2,13 @@ const express = require('express')
 const router = express.Router()
 const ContenedorMensajes = require("../api/ContenedorMensajesNew")
 const mensajesEnFile = new ContenedorMensajes()
+const moment = require("moment")
 
 router.get("/index", async (req,res) =>{
     try{
-        const mensaje = await mensajesEnFile.mostrarMensajes()
-        console.log(`estos son mis mensajes ${mensaje}`)
-        res.render("index", {
-            mensajes: mensaje
-            })
+        const mensajes = await mensajesEnFile.mostrarMensajes()
+        console.log(`estos son mis mensajes ${mensajes}`)
+        res.render("mensajes", {mensajes: mensajes})
     }
     catch(error){
         console.log(error.message)
@@ -31,7 +30,8 @@ router.post("/mensajes", async (req, res) => {
             text: mensaje,
             time: moment().format('DD/MM/YYYY HH:mm:ss')
         }
-        mensajesEnFs.guardarMensajes(nuevoMensaje)
+        mensajesEnFile.guardarMensajes(nuevoMensaje)
+        console.log("el mensaje se guardo en el file")
         res.redirect("/index")
     }
     catch(error){
