@@ -1,5 +1,4 @@
 const knex = require("knex")
-//knex es una libreria que nos permite hacer queries a la base de datos de MariaDB.
 
 module.exports = class ContenedorProductos {
     
@@ -10,7 +9,6 @@ module.exports = class ContenedorProductos {
 
     async mostrarTablas () {
         try {
-            //validar si productos existe
             const existe = await this.knex.schema.hasTable('productos')
             if(existe){
             return await this.knex('productos').select('*');

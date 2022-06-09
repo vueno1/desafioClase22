@@ -24,10 +24,6 @@ passport.use("local", new LocalStrategy(
 }
 ))
 
-//una vez hemos registrado, vamos a guardarlo internamente en el navegador.
-//no vamos a tener que autenticar cada vez q visita la pagina.
-//eso lo hace passport con estos dos metodos:
-//en la sesion se guarda como "user": "todo el id...."
 passport.serializeUser((user, done) => {
     done(null, user._id)
 })
