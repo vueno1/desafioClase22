@@ -21,17 +21,17 @@ router.post("/productos", async (req,res) =>{
     }
 })
 
-router.get("/index", async (req, res) => {
-    try {
-        const productos = await productosEnDB.mostrarTodo()
-        console.log(productos)
-        res.render("tabla", {
-            productos:productos 
-        })
-    }
-    catch (error) {
-        console.log(error.message)
-    }
-})
+// router.get("/productos", async (req, res) => {
+//     try {
+//         const productos = await productosEnDB.mostrarTodo()
+//         console.log(productos)
+//         res.render("tabla", {
+//             productos:productos 
+//         })
+//     }
+//     catch (error) {
+//         console.log(error.message)
+//     }
+// })
 
 module.exports = router;

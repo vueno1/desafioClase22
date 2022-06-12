@@ -5,6 +5,13 @@ const Usuario = require('../model/user')
 const passport = require('../passport/passport')
 require("../options/mongoDB")
 
+const ContenedorProductos = require("../api/ContenedorProductos")
+const { mariaDB } = require('../options/mariaDB')
+const productosEnDB = new ContenedorProductos(mariaDB)
+
+const ContenedorMensajes = require("../api/ContenedorMensajesNew")
+const mensajesEnFile = new ContenedorMensajes()
+
 router.get("/login", async (req, res) => {
     try{
         console.log("esto es login")
@@ -76,9 +83,14 @@ router.post("/register", async (req,res) =>{
 
 router.get("/index", async (req, res) => {
     try{
+        console.log("esto es index")
+        const productos = await productosEnDB.mostrarTodo()
+        const mensajes = await mensajesEnFile.mostrarMensajes()
         const user = await Usuario.findById({_id: req.user._id})
         res.render("index", {
-            email: user.email
+            email: user.email, 
+            productos: productos,
+            mensajes: mensajes
         })
     }
     catch(error){

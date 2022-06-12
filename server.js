@@ -45,7 +45,7 @@ app.use(passport.initialize()) //inicializa passport
 app.use(passport.session()) 
 
 //=======routes========//
-app.use("/", usuarioRoutes, productosRoutes, mensajesRoutes, infoRoutes, randomRoutes)
+app.use("/", usuarioRoutes, infoRoutes, randomRoutes)
 
 /*==========PUERTO==========*/
 httpServer.listen(config.PORT, () => console.log(`💻 Servidor corriendo en el puerto ${config.PORT} 💡💡💡!!!`))
