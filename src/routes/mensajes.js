@@ -4,19 +4,6 @@ const ContenedorMensajes = require("../api/ContenedorMensajesNew")
 const mensajesEnFile = new ContenedorMensajes()
 const moment = require("moment")
 
-router.get("/mensajes", async (req,res) =>{
-    try{
-        const mensajes = await mensajesEnFile.mostrarMensajes()
-        console.log(`estos son mis mensajes ${mensajes}`)
-        res.render("mensajes", {
-            mensajes: mensajes
-        })
-    }
-    catch(error){
-        console.log(error.message)
-    }
-})
-
 router.post("/mensajes", async (req, res) => {
     try{
         const {mail, nombre, apellido, edad, alias, avatar, mensaje} = await req.body

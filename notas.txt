@@ -1,0 +1,126 @@
+1 - levantar servidor → 
+    npm start 8080 hola cluster.
+    Si no se indica "cluster" , no se crean los workers y el servidor corre en el proceso normal.
+
+2- al usar cluster:
+    se indica por consola el numero de procesos tomados por node= 
+    Master 11832 is running
+    💻 Servidor corriendo en el puerto 8080 💡💡💡!!!
+    Worker 7076 connected on port 8080
+    💻 Servidor corriendo en el puerto 8080 💡💡💡!!!
+    Worker 8500 connected on port 8080
+    💻 Servidor corriendo en el puerto 8080 💡💡💡!!!
+    Worker 14928 connected on port 8080
+    💻 Servidor corriendo en el puerto 8080 💡💡💡!!!
+    Worker 17684 connected on port 8080
+    💻 Servidor corriendo en el puerto 8080 💡💡💡!!!
+    Worker 8164 connected on port 8080
+    💻 Servidor corriendo en el puerto 8080 💡💡💡!!!
+    Worker 12668 connected on port 8080
+    💻 Servidor corriendo en el puerto 8080 💡💡💡!!!
+    Worker 17052 connected on port 8080
+    💻 Servidor corriendo en el puerto 8080 💡💡💡!!!
+    Worker 8952 connected on port 8080
+    
+
+3- al usar forever:
+
+    *levanto el servidor con "forever start server.js 8080 hola cluster"
+        $ forever start server.js 8080 hola cluster
+        warn:    --minUptime not set. Defaulting to: 1000ms
+        warn:    --spinSleepTime not set. Your script will exit if it does not stay up for at least 1000ms
+        info:    Forever processing file: server.js
+        (node:3512) Warning: Accessing non-existent property 'padLevels' of module exports inside circular dependency
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        (node:3512) Warning: Accessing non-existent property 'padLevels' of module exports inside circular dependency
+
+    *forever list → muestro los procesos que estan corriendo 
+        $ forever list
+        (node:16860) Warning: Accessing non-existent property 'padLevels' of module exports inside circular dependency
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        (node:16860) Warning: Accessing non-existent property 'padLevels' of module exports inside circular dependency
+        info:    Forever processes running
+        data:        uid  command                            script                                                                                              forever pid  id logfile                            uptime
+        data:    [0] NYP3 "C:\Program Files\nodejs\node.exe" C:\Users\Usuario\Documents\programacion\Backend\desafios\desafioClase26\server.js 8080 hola cluster 14528   8684    C:\Users\Usuario\.forever\NYP3.log 0:0:0:37.329
+
+     *forever stop → para el proceso que esta corriendo
+
+        $ forever stop 14528$ forever stop server.js
+        (node:4316) Warning: Accessing non-existent property 'padLevels' of module exports inside circular dependency
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        (node:4316) Warning: Accessing non-existent property 'padLevels' of module exports inside circular dependency
+        info:    Forever stopped process:
+            uid  command                            script                                                                                 forever pid   id logfile                 
+                uptime
+        [0] 8Nb- "C:\Program Files\nodejs\node.exe" C:\Users\Usuario\Documents\programacion\Backend\desafios\desafioClase26\server.js 8080 15452   11848    C:\Users\Usuario\.forever\8Nb-.log 0:0:3:14.442000000000007
+
+4- al usar pm2:
+    *levanto con "pm2 start server.js 8080"
+    //modo FORK 
+        $ pm2 start server.js 8080 
+        [PM2] Applying action restartProcessId on app [server](ids: [ 0, 1 ])
+        [PM2] [server](0) ✓
+        [PM2] [server](1) ✓
+        [PM2] Process successfully started
+        [PM2] Applying action restartProcessId on app [8080](ids: [ '8080' ])
+        [PM2][ERROR] Process 8080 not found
+
+        ***no me reconoce el puerto 8080
+
+    *pm2 list
+        $ pm2 list
+        ⇆ PM2+ activated | Instance Name: DESKTOP-K2G6E4T-313e | Dash: https://app.pm2.io/#/r/ebtm04i5uosuu59
+        ┌─────┬───────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+        │ id  │ name      │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+        ├─────┼───────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+        │ 0   │ server    │ default     │ 1.0.0   │ fork    │ 21480    │ 12s    │ 0    │ online    │ 0%       │ 58.8mb   │ Usuario  │ disabled │
+        │ 1   │ server    │ default     │ 1.0.0   │ fork    │ 2644     │ 12s    │ 0    │ online    │ 0%       │ 58.6mb   │ Usuario  │ disabled │
+        └─────┴───────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+
+    *levanto el servidor = modo cluster 
+        $ pm2 start server.js --watch -i max
+        [PM2] Starting C:\Users\Usuario\Documents\programacion\Backend\desafios\desafioClase26\server.js in cluster_mode (0 instance)
+        [PM2] Done.
+        ⇆ PM2+ activated | Instance Name: DESKTOP-K2G6E4T-313e | Dash: https://app.pm2.io/#/r/ebtm04i5uosuu59
+        ┌─────┬───────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+        │ id  │ name      │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+        ├─────┼───────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+        │ 0   │ server    │ default     │ 1.0.0   │ cluster │ 19184    │ 4s     │ 0    │ online    │ 3.1%     │ 88.2mb   │ Usuario  │ enabled  │
+        │ 1   │ server    │ default     │ 1.0.0   │ cluster │ 13120    │ 4s     │ 0    │ online    │ 4.7%     │ 88.4mb   │ Usuario  │ enabled  │
+        │ 2   │ server    │ default     │ 1.0.0   │ cluster │ 22200    │ 4s     │ 0    │ online    │ 0%       │ 85.1mb   │ Usuario  │ enabled  │
+        │ 3   │ server    │ default     │ 1.0.0   │ cluster │ 12152    │ 4s     │ 0    │ online    │ 4.7%     │ 86.5mb   │ Usuario  │ enabled  │
+        │ 4   │ server    │ default     │ 1.0.0   │ cluster │ 21368    │ 3s     │ 0    │ online    │ 12.4%    │ 75.9mb   │ Usuario  │ enabled  │
+        │ 5   │ server    │ default     │ 1.0.0   │ cluster │ 17900    │ 3s     │ 0    │ online    │ 15.6%    │ 74.2mb   │ Usuario  │ enabled  │
+        │ 6   │ server    │ default     │ 1.0.0   │ cluster │ 12044    │ 2s     │ 0    │ online    │ 15.7%    │ 63.7mb   │ Usuario  │ enabled  │
+        │ 7   │ server    │ default     │ 1.0.0   │ cluster │ 16492    │ 2s     │ 0    │ online    │ 37.4%    │ 44.5mb   │ Usuario  │ enabled  │
+        └─────┴───────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+        **si le pongo pm2 start server.js --watch -i 3, me tira un linea con modo fork.
+
+    *para parar el proceso que esta corriendo:
+        $ pm2 stop server.js
+        [PM2] Applying action stopProcessId on app [server.js](ids: [
+        0, 1, 2, 3,
+        4, 5, 6, 7
+        ])
+        [PM2] [server](0) ✓
+        [PM2] [server](1) ✓
+        [PM2] [server](2) ✓
+        [PM2] [server](3) ✓
+        [PM2] [server](4) ✓
+        [PM2] [server](5) ✓
+        [PM2] [server](6) ✓
+        [PM2] [server](7) ✓
+        ⇆ PM2+ activated | Instance Name: DESKTOP-K2G6E4T-313e | Dash: https://app.pm2.io/#/r/ebtm04i5uosuu59
+        ┌─────┬───────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+        │ id  │ name      │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+        ├─────┼───────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+        │ 0   │ server    │ default     │ 1.0.0   │ cluster │ 0        │ 0      │ 2    │ stopped   │ 0%       │ 0b       │ Usuario  │ disabled │
+        │ 1   │ server    │ default     │ 1.0.0   │ cluster │ 0        │ 0      │ 2    │ stopped   │ 0%       │ 0b       │ Usuario  │ disabled │
+        │ 2   │ server    │ default     │ 1.0.0   │ cluster │ 0        │ 0      │ 2    │ stopped   │ 0%       │ 0b       │ Usuario  │ disabled │
+        │ 3   │ server    │ default     │ 1.0.0   │ cluster │ 0        │ 0      │ 2    │ stopped   │ 0%       │ 0b       │ Usuario  │ disabled │
+        │ 4   │ server    │ default     │ 1.0.0   │ cluster │ 0        │ 0      │ 2    │ stopped   │ 0%       │ 0b       │ Usuario  │ disabled │
+        │ 5   │ server    │ default     │ 1.0.0   │ cluster │ 0        │ 0      │ 2    │ stopped   │ 0%       │ 0b       │ Usuario  │ disabled │
+        │ 6   │ server    │ default     │ 1.0.0   │ cluster │ 0        │ 0      │ 2    │ stopped   │ 0%       │ 0b       │ Usuario  │ disabled │
+        │ 7   │ server    │ default     │ 1.0.0   │ cluster │ 0        │ 0      │ 2    │ stopped   │ 0%       │ 0b       │ Usuario  │ disabled │
+        └─────┴───────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+

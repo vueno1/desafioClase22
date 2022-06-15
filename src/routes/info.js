@@ -1,9 +1,11 @@
 const express = require('express')
 const router = express.Router()
+const numCPUs = require('os').cpus().length
 
 
 router.get("/info", async (req, res )=>{
     try{
+        const processArgv = process.argv
         const argumentosDeEntrada = process.argv.slice(3)
         const pathDeEjecucion = process.cwd()
         const nombreDePlataforma = process.platform
@@ -11,6 +13,7 @@ router.get("/info", async (req, res )=>{
         const processId = process.pid
         const rss = process.memoryUsage().rss
         const carpetaDelProyecto = process.cwd()
+        const procesadores = numCPUs
 
         res.render("info", {
             argumentosDeEntrada,
@@ -19,7 +22,9 @@ router.get("/info", async (req, res )=>{
             versionDeNode,
             processId,
             rss,
-            carpetaDelProyecto  
+            carpetaDelProyecto, 
+            procesadores,
+            processArgv  
         })
     }
     catch(error){
