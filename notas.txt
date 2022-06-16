@@ -124,3 +124,82 @@
         │ 7   │ server    │ default     │ 1.0.0   │ cluster │ 0        │ 0      │ 2    │ stopped   │ 0%       │ 0b       │ Usuario  │ disabled │
         └─────┴───────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
 
+////NGNIX///
+configuracion en "nginx.conf"
+
+        events {    
+        }
+
+        http {
+            include mime.types;
+            default_type application/octet-stream;
+
+            # redirigidas a un servidor individual esuchando el puerto 8080
+            upstream node_app {
+                server 127.0.0.1:8080;      
+            }  
+
+            # redirigidas a un cluster escuchando el puerto 8081
+            upstream n_cluster {
+                server 127.0.0.1:8081;
+            }
+
+            server {
+                listen 80;
+                server_name node_app
+                location / {
+                    proxy_pass http://node_app;
+                }
+            }
+
+            server {
+                listen 80;
+                server_name n_cluster
+                location /api/randoms {
+                    proxy_pass http://n_cluster;
+                }
+            }
+
+        }
+
+    levanto el servidor en modo cluster:
+    $ pm2 start server.js 8080 hola --watch -i max
+        [PM2] Starting C:\Users\Usuario\Documents\programacion\Backend\desafios\desafioClase26\server.js in cluster_mode (0 instance)
+        [PM2] Done.
+        [PM2] Applying action restartProcessId on app [8080](ids: [ '8080' ])
+        [PM2][ERROR] Process 8080 not found
+
+        Usuario@DESKTOP-K2G6E4T MINGW64 ~/Documents/programacion/Backend/desafios/desafioClase26 (desafioClase30)
+        $ pm2 list
+        ⇆ PM2+ activated | Instance Name: DESKTOP-K2G6E4T-313e | Dash: https://app.pm2.io/#/r/ebtm04i5uosuu59
+        ┌─────┬───────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+        │ id  │ name      │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+        ├─────┼───────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+        │ 0   │ server    │ default     │ 1.0.0   │ cluster │ 8292     │ 10s    │ 0    │ online    │ 0%       │ 89.2mb   │ Usuario  │ enabled  │
+        │ 1   │ server    │ default     │ 1.0.0   │ cluster │ 11996    │ 10s    │ 0    │ online    │ 0%       │ 89.1mb   │ Usuario  │ enabled  │
+        │ 2   │ server    │ default     │ 1.0.0   │ cluster │ 2768     │ 10s    │ 0    │ online    │ 0%       │ 88.9mb   │ Usuario  │ enabled  │
+        │ 3   │ server    │ default     │ 1.0.0   │ cluster │ 17024    │ 10s    │ 0    │ online    │ 0%       │ 89.1mb   │ Usuario  │ enabled  │
+        │ 4   │ server    │ default     │ 1.0.0   │ cluster │ 5932     │ 10s    │ 0    │ online    │ 0%       │ 88.9mb   │ Usuario  │ enabled  │
+        │ 5   │ server    │ default     │ 1.0.0   │ cluster │ 3088     │ 9s     │ 0    │ online    │ 0%       │ 88.9mb   │ Usuario  │ enabled  │
+        │ 6   │ server    │ default     │ 1.0.0   │ cluster │ 16164    │ 9s     │ 0    │ online    │ 0%       │ 89.3mb   │ Usuario  │ enabled  │
+        │ 7   │ server    │ default     │ 1.0.0   │ cluster │ 3572     │ 8s     │ 0    │ online    │ 0%       │ 89.0mb   │ Usuario  │ enabled  │
+        └─────┴───────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+
+    ***al ir a "api/randoms" me muestra lo siguiente: 
+        "ngnix":"ngnix corriendo en el puerto undefined, PID WORKER 3572"
+
+    Luego, levanto el servidor en modo fork:
+    $ pm2 start server.js 8000 hola 
+        [PM2] Starting C:\Users\Usuario\Documents\programacion\Backend\desafios\desafioClase26\server.js in fork_mode (1 instance)
+        [PM2] Done.
+        [PM2] Applying action restartProcessId on app [8000](ids: [ '8000' ])
+        [PM2][ERROR] Process 8000 not found
+
+        Usuario@DESKTOP-K2G6E4T MINGW64 ~/Documents/programacion/Backend/desafios/desafioClase26 (desafioClase30)
+        $ pm2 list
+        ⇆ PM2+ activated | Instance Name: DESKTOP-K2G6E4T-313e | Dash: https://app.pm2.io/#/r/ebtm04i5uosuu59
+        ┌─────┬───────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+        │ id  │ name      │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+        ├─────┼───────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+        │ 0   │ server    │ default     │ 1.0.0   │ fork    │ 13980    │ 13s    │ 0    │ online    │ 0%       │ 58.7mb   │ Usuario  │ disabled │
+        └─────┴───────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
