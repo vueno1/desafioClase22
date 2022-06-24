@@ -15,11 +15,12 @@ const infoRoutes = require("./src/routes/info")
 const randomRoutes = require("./src/routes/random")
 const config = require("./src/config")
 
-console.log(config.PORT)
-console.log(config.ARGUMENTO2)
+const log4js = require("./src/logs/log4js")
+const logger = log4js.getLogger()
 
 if (config.ARGUMENTO2 == "cluster") {
 
+    logger.info("MODO CLUSTER")
     const cluster = require('cluster');
     const numCPUs = require('os').cpus().length;
 
@@ -75,6 +76,7 @@ if (config.ARGUMENTO2 == "cluster") {
 }
 else {
 
+    logger.info("MODO FORK")
     app.set('views', path.join(path.dirname(''), './src/views') )
     app.engine('.hbs', exphbs.engine({
         defaultLayout: 'main',

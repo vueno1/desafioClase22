@@ -12,13 +12,17 @@ const productosEnDB = new ContenedorProductos(mariaDB)
 const ContenedorMensajes = require("../api/ContenedorMensajesNew")
 const mensajesEnFile = new ContenedorMensajes()
 
+const log4js = require("../logs/log4js")
+const logger = log4js.getLogger()
+const loggerwarnFile = log4js.getLogger("archivo");
+
 router.get("/login", async (req, res) => {
     try{
-        console.log("esto es login")
+        logger.info("esto es login!")
         res.render("login")
     }
     catch(error){
-        console.log(error.message)
+        loggerwarnFile.warn(`warning = ${error}`)
     }
 })
 
@@ -31,20 +35,21 @@ router.post('/login',
 
 router.get("/login-error", (req, res) => {
     try{
+        loggerwarnFile.warn("error al loggearse!")
         res.render("login-error")
     }
     catch(error){
-        console.log(error.message)
+        loggerwarnFile.warn(`warning = ${error}`)
     }
 })
 
 router.get("/register",  (req, res) => {
     try{
-        console.log("esto es register")
+        logger.info("esto es register")
         res.render("register")
     }
     catch(error){
-        console.log(error.message)
+        loggerwarnFile.warn(`warning = ${error}`)
     }
 })
 
@@ -52,38 +57,33 @@ router.post("/register", async (req,res) =>{
     try{
         const usuariosRegistrados = await Usuario.find()
         const { email, password } = await req.body
-        console.log(email)
-        console.log(password)
 
         if(usuariosRegistrados.find(usuario => usuario.email === email)){
-            console.log("el usuario ya esta registrado")
+            loggerwarnFile.warn("el usuario ya esta registrado!!")
+            logger.warn("el usuario ya esta registrado!")
             res.render("register-duplicado")
         }        
         const salt = await bcrypt.genSalt(10) //ejecuta el algoritmo 10 veces.
         const hash = await bcrypt.hash(password, salt)
-        console.log(`password hasheado = ${hash}`)
 
         const user = new Usuario({
             email: email, 
             password: hash
         })
         await user.save()
-        console.log("se guardo en mongoDB como users")
-
+        logger.info("usuario guardado!")
         req.session.email = user.email
         req.session.password = user.password
-        console.log("se guardo en session")
-
         res.redirect("/login")
     }
     catch(error){
-        console.log(error.message)
+        loggerwarnFile.warn(`warning = ${error}`)
     }
 })
 
 router.get("/index", async (req, res) => {
     try{
-        console.log("esto es index")
+        logger.info("bienvenido!")
         const productos = await productosEnDB.mostrarTodo()
         const mensajes = await mensajesEnFile.mostrarMensajes()
         const user = await Usuario.findById({_id: req.user._id})
@@ -94,17 +94,18 @@ router.get("/index", async (req, res) => {
         })
     }
     catch(error){
-        console.log(error.message)
+        loggerwarnFile.warn(`warning = ${error}`)
     }
 })
 
 router.get("/logout", (req, res) => {
     try {
+        logger.info("gracias por su visita!")
         req.session.destroy()
         res.render("adios")
     }
     catch(error){
-        console.log(error.message)
+        loggerwarnFile.warn(`warning = ${error}`)
     }
 }) 
 

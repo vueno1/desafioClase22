@@ -4,6 +4,10 @@ const ContenedorMensajes = require("../api/ContenedorMensajesNew")
 const mensajesEnFile = new ContenedorMensajes()
 const moment = require("moment")
 
+const log4js = require("../logs/log4js")
+const logger = log4js.getLogger()
+const loggerErrorFile = log4js.getLogger("archivo2")
+
 router.post("/mensajes", async (req, res) => {
     try{
         const {mail, nombre, apellido, edad, alias, avatar, mensaje} = await req.body
@@ -20,11 +24,11 @@ router.post("/mensajes", async (req, res) => {
             time: moment().format('DD/MM/YYYY HH:mm:ss')
         }
         mensajesEnFile.guardarMensajes(nuevoMensaje)
-        console.log("el mensaje se guardo en el file")
+        logger.info("el mensaje se guardo en el file!")
         res.redirect("/mensajes")
     }
     catch(error){
-        console.log(error.message)
+        loggerErrorFile.error(`ERROR = ${error}`)
     }
 })
 

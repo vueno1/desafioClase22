@@ -1,8 +1,13 @@
 const ContenedorRandomNumeros = require('../api/ContenedorRandomNumeros')
 const misRandomNumeros = new ContenedorRandomNumeros()
 
-console.log("//////PROCESO SECUNDARIO////")
-console.log("parametro x req.query", process.pid)
+
+const log4js = require("../logs/log4js")
+const logger = log4js.getLogger()
+const loggerwarnFile = log4js.getLogger("archivo");
+
+logger.info("//////PROCESO SECUNDARIO////")
+logger.info("parametro x req.query", process.pid)
 
 try {
     process.on ('message', async (cantidad) => {    
@@ -13,7 +18,7 @@ try {
     })
 }
 catch(error) {
-    console.log(error.message)
+    loggerwarnFile.warn(`WARNING = ${error}`)
 }
 
 

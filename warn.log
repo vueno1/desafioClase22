@@ -1,0 +1,10 @@
+[2022-06-22T18:21:09.693] [WARN] archivo - el usuario ya esta registrado!!
+[2022-06-22T18:21:09.820] [WARN] archivo - warning = Error [ERR_HTTP_HEADERS_SENT]: Cannot set headers after they are sent to the client
+[2022-06-22T18:43:56.076] [WARN] archivo - error al loggearse!
+[2022-06-22T21:35:01.296] [WARN] archivo - error al loggearse!
+[2022-06-22T21:36:21.812] [WARN] archivo - el usuario ya esta registrado!!
+[2022-06-22T21:36:22.029] [WARN] archivo - warning = Error [ERR_HTTP_HEADERS_SENT]: Cannot set headers after they are sent to the client
+[2022-06-23T17:26:24.950] [WARN] archivo - ERROR = ReferenceError: argumentosDeEntrada is not defined
+[2022-06-23T17:29:47.402] [WARN] archivo - ERROR = ReferenceError: argumentosDeEntrada is not defined
+[2022-06-23T17:31:16.791] [WARN] archivo - ERROR = ReferenceError: argumentosDeEntrada is not defined
+[2022-06-23T17:32:47.392] [WARN] archivo - ERROR = ReferenceError: argumentosDeEntrada is not defined
